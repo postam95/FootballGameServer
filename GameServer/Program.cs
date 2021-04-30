@@ -10,7 +10,6 @@ namespace GameServer
             Console.Title = "Football Game Server";
             FootballGameServer n = new FootballGameServer();
             n.Start();
-
             Console.ReadKey();
         }
     }
