@@ -76,7 +76,7 @@ public class FootballGameServer
 		using (var client = token as TcpClient)
 		using (var stream = client.GetStream())
 		{
-			Debug.WriteLine("Kliens csatlakozott");			
+			Console.WriteLine("Kliens csatlakozott");			
 			actClient = ++connectedClient;
 			int length;                   
 			while ((length = stream.Read(bytes, 0, bytes.Length)) != 0)
@@ -84,7 +84,7 @@ public class FootballGameServer
 				var incommingData = new byte[length];
 				Array.Copy(bytes, 0, incommingData, 0, length);                    
 				string clientMessage = Encoding.ASCII.GetString(incommingData);
-				Debug.WriteLine(clientMessage);
+				Console.WriteLine(clientMessage);
 
 				if (clientMessage.StartsWith("Name:"))
                 {
@@ -101,7 +101,7 @@ public class FootballGameServer
                 }else{
 
 					UserCommand command = JsonConvert.DeserializeObject<UserCommand>(clientMessage);
-					Debug.WriteLine("Act Klient: " + actClient);
+					Console.WriteLine("Act Klient: " + actClient);
 
 					command.doCommand();
 				}
@@ -138,12 +138,12 @@ public class FootballGameServer
 				{          
 					byte[] serverMessageAsByteArray = Encoding.ASCII.GetBytes(msg);           
 					stream.Write(serverMessageAsByteArray, 0, serverMessageAsByteArray.Length);
-					Debug.WriteLine("Szerver üzenet küldés: " + serverMessageAsByteArray);
+					Console.WriteLine("Szerver üzenet küldés: " + serverMessageAsByteArray);
 				}
 			}
 			catch (SocketException socketException)
 			{
-				Debug.WriteLine("Socket hiba: " + socketException);
+				Console.WriteLine("Socket hiba: " + socketException);
 				return;
 			}
 		}

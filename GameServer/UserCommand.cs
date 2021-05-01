@@ -35,6 +35,9 @@ namespace GameServer
 
         public void doCommand()
         {
+            if (!isMovingValid())
+                return;
+
             if (clientId == 1)
             {
                 SingletonGameState.GetInstance().GetGameState().PictureHomePlayer1X += 2 * Convert.ToInt32(right);
@@ -47,6 +50,34 @@ namespace GameServer
                 SingletonGameState.GetInstance().GetGameState().PictureAwayPlayer1Y -= 2 * Convert.ToInt32(up);
                 SingletonGameState.GetInstance().GetGameState().PictureAwayPlayer1Y += 2 * Convert.ToInt32(down);
             }
+        }
+
+        public bool isMovingValid()
+        {
+            GameState gameState = SingletonGameState.GetInstance().GetGameState();
+            if (clientId == 1)
+            {
+                if (gameState.PictureHomePlayer1X + 2 * Convert.ToInt32(right) > 751)
+                    return false;
+                if (gameState.PictureHomePlayer1X - 2 * Convert.ToInt32(Left) < 30)
+                    return false;
+                if (gameState.PictureHomePlayer1Y - 2 * Convert.ToInt32(up) < 23)
+                    return false;
+                if (gameState.PictureHomePlayer1Y + 2 * Convert.ToInt32(down) > 486)
+                    return false;
+            }
+            else
+            {
+                if (gameState.PictureAwayPlayer1X + 2 * Convert.ToInt32(right) > 751)
+                    return false;
+                if (gameState.PictureAwayPlayer1X - 2 * Convert.ToInt32(Left) < 30)
+                    return false;
+                if (gameState.PictureAwayPlayer1Y - 2 * Convert.ToInt32(up) < 23)
+                    return false;
+                if (gameState.PictureAwayPlayer1Y + 2 * Convert.ToInt32(down) > 486)
+                    return false;
+            }
+            return true;
         }
 
         public bool Up { get => up; set => up = value; }
