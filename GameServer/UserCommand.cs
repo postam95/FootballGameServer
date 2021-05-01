@@ -35,24 +35,34 @@ namespace GameServer
 
         public void doCommand()
         {
-            if (kick)
-                doKicking();
+            // Ha a játékos rúgni szeretne ÉS a játékos elég közel van a labdához, akkor végrehajtódik
+            // a labda mozgatása.
+            if (kick && isPlayerCloseEnoughToBall())
+            // A paraméter meghatározza a labda mozgatásának mértékét.
+                doKicking(1);
 
-            // Ha a mozgás nem fér bele a játéktérbe, akkor nem hajtódik végre.
-            if (!isPlayerMovingValid())
-                return;
+            // Ha a mozgás nem fér bele a játéktérbe, akkor nem hajtódik végre a játékos mozgatása.
+            if (isPlayerMovingValid())
+                doPlayerMoving();
 
+        }
+
+        private void doPlayerMoving()
+        {
+            GameState gameState = SingletonGameState.GetInstance().GetGameState();
             if (clientId == 1)
             {
-                SingletonGameState.GetInstance().GetGameState().PictureHomePlayer1X += 2 * Convert.ToInt32(right);
-                SingletonGameState.GetInstance().GetGameState().PictureHomePlayer1X -= 2 * Convert.ToInt32(Left);
-                SingletonGameState.GetInstance().GetGameState().PictureHomePlayer1Y -= 2 * Convert.ToInt32(up);
-                SingletonGameState.GetInstance().GetGameState().PictureHomePlayer1Y += 2 * Convert.ToInt32(down);
-            } else {
-                SingletonGameState.GetInstance().GetGameState().PictureAwayPlayer1X += 2 * Convert.ToInt32(right);
-                SingletonGameState.GetInstance().GetGameState().PictureAwayPlayer1X -= 2 * Convert.ToInt32(Left);
-                SingletonGameState.GetInstance().GetGameState().PictureAwayPlayer1Y -= 2 * Convert.ToInt32(up);
-                SingletonGameState.GetInstance().GetGameState().PictureAwayPlayer1Y += 2 * Convert.ToInt32(down);
+                gameState.PictureHomePlayer1X += 2 * Convert.ToInt32(right);
+                gameState.PictureHomePlayer1X -= 2 * Convert.ToInt32(Left);
+                gameState.PictureHomePlayer1Y -= 2 * Convert.ToInt32(up);
+                gameState.PictureHomePlayer1Y += 2 * Convert.ToInt32(down);
+            }
+            else
+            {
+                gameState.PictureAwayPlayer1X += 2 * Convert.ToInt32(right);
+                gameState.PictureAwayPlayer1X -= 2 * Convert.ToInt32(Left);
+                gameState.PictureAwayPlayer1Y -= 2 * Convert.ToInt32(up);
+                gameState.PictureAwayPlayer1Y += 2 * Convert.ToInt32(down);
             }
         }
 
@@ -61,59 +71,77 @@ namespace GameServer
             GameState gameState = SingletonGameState.GetInstance().GetGameState();
             if (clientId == 1)
             {
-                if (gameState.PictureHomePlayer1X + 2 * Convert.ToInt32(right) > 751)
+                if (gameState.PictureHomePlayer1X + 2 * Convert.ToInt32(right) > 771)
                     return false;
-                if (gameState.PictureHomePlayer1X - 2 * Convert.ToInt32(Left) < 30)
+                if (gameState.PictureHomePlayer1X - 2 * Convert.ToInt32(Left) < 10)
                     return false;
-                if (gameState.PictureHomePlayer1Y - 2 * Convert.ToInt32(up) < 23)
+                if (gameState.PictureHomePlayer1Y - 2 * Convert.ToInt32(up) < 3)
                     return false;
-                if (gameState.PictureHomePlayer1Y + 2 * Convert.ToInt32(down) > 486)
+                if (gameState.PictureHomePlayer1Y + 2 * Convert.ToInt32(down) > 506)
                     return false;
             }
             else
             {
-                if (gameState.PictureAwayPlayer1X + 2 * Convert.ToInt32(right) > 751)
+                if (gameState.PictureAwayPlayer1X + 2 * Convert.ToInt32(right) > 771)
                     return false;
-                if (gameState.PictureAwayPlayer1X - 2 * Convert.ToInt32(Left) < 30)
+                if (gameState.PictureAwayPlayer1X - 2 * Convert.ToInt32(Left) < 10)
                     return false;
-                if (gameState.PictureAwayPlayer1Y - 2 * Convert.ToInt32(up) < 23)
+                if (gameState.PictureAwayPlayer1Y - 2 * Convert.ToInt32(up) < 3)
                     return false;
-                if (gameState.PictureAwayPlayer1Y + 2 * Convert.ToInt32(down) > 486)
+                if (gameState.PictureAwayPlayer1Y + 2 * Convert.ToInt32(down) > 506)
                     return false;
             }
             return true;
         }
 
-        private void doKicking()
+        private void doKicking(int distance)
         {
             GameState gameState = SingletonGameState.GetInstance().GetGameState();
-            double playerDistanceToBall;
-
-            // Ha a játékos nincs megfelelő távoláson belül a labdához, akkor a rúgás nem hajtódik végre.
-            if (!isKickingValid())
-                return;
 
             if (clientId == 1)
             {
                 double moveX = gameState.PictureBallX - gameState.PictureHomePlayer1X;
                 double moveY = gameState.PictureBallY - gameState.PictureHomePlayer1Y;
-                playerDistanceToBall = calculateDistance(gameState.PictureHomePlayer1X, gameState.PictureHomePlayer1Y,
+                double playerDistanceToBall = calculateDistance(gameState.PictureHomePlayer1X, gameState.PictureHomePlayer1Y,
                                                          gameState.PictureBallX, gameState.PictureBallY);
-                gameState.PictureBallX += (Int32)(2 * moveX / playerDistanceToBall);
-                gameState.PictureBallY += (Int32)(2 * moveY / playerDistanceToBall);
+                int targetBallPositionX = gameState.PictureBallX + (Int32)(2 * distance * moveX / playerDistanceToBall);
+                int targetBallPositionY = gameState.PictureBallY + (Int32)(2 * distance * moveY / playerDistanceToBall);
+                if (isBallMovingValid(targetBallPositionX, targetBallPositionY))
+                {
+                    gameState.PictureBallX = targetBallPositionX;
+                    gameState.PictureBallY = targetBallPositionY;
+                }
             }
             else
             {
                 double moveX = gameState.PictureBallX - gameState.PictureAwayPlayer1X;
                 double moveY = gameState.PictureBallY - gameState.PictureAwayPlayer1Y;
-                playerDistanceToBall = calculateDistance(gameState.PictureAwayPlayer1X, gameState.PictureAwayPlayer1Y,
+                double playerDistanceToBall = calculateDistance(gameState.PictureAwayPlayer1X, gameState.PictureAwayPlayer1Y,
                                                          gameState.PictureBallX, gameState.PictureBallY);
-                gameState.PictureBallX += (Int32)(2 * moveX / playerDistanceToBall);
-                gameState.PictureBallY += (Int32)(2 * moveY / playerDistanceToBall);
+                int targetBallPositionX = gameState.PictureBallX + (Int32)(2 * distance * moveX / playerDistanceToBall);
+                int targetBallPositionY = gameState.PictureBallY + (Int32)(2 * distance * moveY / playerDistanceToBall);
+                if (isBallMovingValid(targetBallPositionX, targetBallPositionY))
+                {
+                    gameState.PictureBallX = targetBallPositionX;
+                    gameState.PictureBallY = targetBallPositionY;
+                }
             }
         }
 
-        private bool isKickingValid()
+        private bool isBallMovingValid(int positionX, int positionY)
+        {
+            if (positionX > 765)
+                return false;
+            if (positionX < 35)
+                return false;
+            if (positionY < 27)
+                return false;
+            if (positionY > 503)
+                return false;
+            return true;
+        }
+
+        private bool isPlayerCloseEnoughToBall()
         {
             GameState gameState = SingletonGameState.GetInstance().GetGameState();
             double playerDistanceToBall;
