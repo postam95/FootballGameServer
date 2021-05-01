@@ -12,6 +12,7 @@ namespace GameServer
         private bool left;
         private bool right;
         private bool kick;
+        private int kickForce;
 
         public UserCommand()
         {
@@ -21,9 +22,10 @@ namespace GameServer
             this.Left = false;
             this.Right = false;
             this.Kick = false;
+            this.KickForce = 0;
         }
 
-        public UserCommand(int clientId, bool up, bool down, bool left, bool right, bool kick)
+        public UserCommand(int clientId, bool up, bool down, bool left, bool right, bool kick, int kickForce)
         {
             this.clientId = clientId;
             this.up = up;
@@ -31,6 +33,7 @@ namespace GameServer
             this.left = left;
             this.right = right;
             this.kick = kick;
+            this.kickForce = kickForce;
         }
 
         public void doCommand()
@@ -38,8 +41,8 @@ namespace GameServer
             // Ha a játékos rúgni szeretne ÉS a játékos elég közel van a labdához, akkor végrehajtódik
             // a labda mozgatása.
             if (kick && isPlayerCloseEnoughToBall())
-            // A paraméter meghatározza a labda mozgatásának mértékét.
-                doKicking(1);
+            // A paraméter meghatározza a labda mozgatásának mértékét. Az 1 a labdavezetés, a nagyobb rúgás.
+                doKicking(kickForce);
 
             // Ha a mozgás nem fér bele a játéktérbe, akkor nem hajtódik végre a játékos mozgatása.
             if (isPlayerMovingValid())
@@ -94,7 +97,7 @@ namespace GameServer
             return true;
         }
 
-        private void doKicking(int distance)
+        private void doKicking(int kickForce)
         {
             GameState gameState = SingletonGameState.GetInstance().GetGameState();
 
@@ -104,8 +107,8 @@ namespace GameServer
                 double moveY = gameState.PictureBallY - gameState.PictureHomePlayer1Y;
                 double playerDistanceToBall = calculateDistance(gameState.PictureHomePlayer1X, gameState.PictureHomePlayer1Y,
                                                          gameState.PictureBallX, gameState.PictureBallY);
-                int targetBallPositionX = gameState.PictureBallX + (Int32)(2 * distance * moveX / playerDistanceToBall);
-                int targetBallPositionY = gameState.PictureBallY + (Int32)(2 * distance * moveY / playerDistanceToBall);
+                int targetBallPositionX = gameState.PictureBallX + (Int32)(2 * kickForce * moveX / playerDistanceToBall);
+                int targetBallPositionY = gameState.PictureBallY + (Int32)(2 * kickForce * moveY / playerDistanceToBall);
                 if (isBallMovingValid(targetBallPositionX, targetBallPositionY))
                 {
                     gameState.PictureBallX = targetBallPositionX;
@@ -118,8 +121,8 @@ namespace GameServer
                 double moveY = gameState.PictureBallY - gameState.PictureAwayPlayer1Y;
                 double playerDistanceToBall = calculateDistance(gameState.PictureAwayPlayer1X, gameState.PictureAwayPlayer1Y,
                                                          gameState.PictureBallX, gameState.PictureBallY);
-                int targetBallPositionX = gameState.PictureBallX + (Int32)(2 * distance * moveX / playerDistanceToBall);
-                int targetBallPositionY = gameState.PictureBallY + (Int32)(2 * distance * moveY / playerDistanceToBall);
+                int targetBallPositionX = gameState.PictureBallX + (Int32)(2 * kickForce * moveX / playerDistanceToBall);
+                int targetBallPositionY = gameState.PictureBallY + (Int32)(2 * kickForce * moveY / playerDistanceToBall);
                 if (isBallMovingValid(targetBallPositionX, targetBallPositionY))
                 {
                     gameState.PictureBallX = targetBallPositionX;
@@ -154,7 +157,7 @@ namespace GameServer
             }
             else
             {
-                playerDistanceToBall = calculateDistance(gameState.PictureHomePlayer1X, gameState.PictureHomePlayer1Y,
+                playerDistanceToBall = calculateDistance(gameState.PictureAwayPlayer1X, gameState.PictureAwayPlayer1Y,
                                                          gameState.PictureBallX,        gameState.PictureBallY);
                 if (playerDistanceToBall > 80.0)
                     return false;
@@ -175,6 +178,7 @@ namespace GameServer
         public bool Left { get => left; set => left = value; }
         public bool Right { get => right; set => right = value; }
         public bool Kick { get => kick; set => kick = value; }
+        public int KickForce { get => kickForce; set => kickForce = value; }
         public int ClientId { get => clientId; set => clientId = value; }
     }
 }
