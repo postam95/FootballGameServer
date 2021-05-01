@@ -1,5 +1,5 @@
 ﻿using System;
-
+using System.Threading;
 
 namespace GameServer
 {
@@ -10,6 +10,7 @@ namespace GameServer
             Console.Title = "Football Game Server";
             FootballGameServer n = new FootballGameServer();
             n.Start();
+
             Console.ReadKey();
         }
     }
