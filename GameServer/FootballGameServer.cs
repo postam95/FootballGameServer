@@ -21,6 +21,8 @@ public class FootballGameServer
 	private Thread sendStateThread;
 	private TcpClient connectedTcpClient;
 	private GameState gameState = SingletonGameState.GetInstance().GetGameState();
+	private GoalKeeper homeGoalKeeper = new GoalKeeper(1, 70, 249, 128, 374, 125, 47);
+	private GoalKeeper awayGoalKeeper = new GoalKeeper(2, 708, 249, 128, 374, 732 , 654);
 
 	private int connectedClient = 0;
 
@@ -76,7 +78,7 @@ public class FootballGameServer
 		using (var client = token as TcpClient)
 		using (var stream = client.GetStream())
 		{
-			Console.WriteLine("Kliens csatlakozott");			
+			Console.WriteLine("Client connected successfully!");			
 			actClient = ++connectedClient;
 			int length;                   
 			while ((length = stream.Read(bytes, 0, bytes.Length)) != 0)
@@ -101,9 +103,12 @@ public class FootballGameServer
                 }else{
 
 					UserCommand command = JsonConvert.DeserializeObject<UserCommand>(clientMessage);
-					Console.WriteLine("Act Klient: " + actClient);
-
+					Console.WriteLine("Client: " + actClient);
 					command.doCommand();
+					homeGoalKeeper.moveGoalKeeper();
+					homeGoalKeeper.updatePositionInGameState();
+					awayGoalKeeper.moveGoalKeeper();
+					awayGoalKeeper.updatePositionInGameState();
 				}
 
 				if (gameState.GameActualState == 1)
