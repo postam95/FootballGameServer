@@ -14,7 +14,6 @@ using System.Threading;
 
 public class FootballGameServer
 {
-
 	private List<TcpClient> listConnectedClients = new List<TcpClient>(new TcpClient[0]);
 	private TcpListener tcpListener;
 	private Thread tcpListenerThread;
