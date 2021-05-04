@@ -34,7 +34,7 @@ namespace GameServer
                 GameState gameState = SingletonGameState.GetInstance().GetGameState();
                 double moveX = gameState.PictureBallX - positionX;
                 double moveY = gameState.PictureBallY - positionY;
-                double playerDistanceToBall = calculateDistance(positionX, positionY, gameState.PictureBallX, gameState.PictureBallY);
+                double playerDistanceToBall = GamePlay.calculateDistance(positionX, positionY, gameState.PictureBallX, gameState.PictureBallY);
                 if (playerDistanceToBall > 10)
                 {
                     positionX += (Int32)(2 * moveX / playerDistanceToBall);
@@ -65,10 +65,11 @@ namespace GameServer
             GameState gameState = SingletonGameState.GetInstance().GetGameState();
             double moveX = gameState.PictureBallX - positionX;
             double moveY = gameState.PictureBallY - positionY;
-            double playerDistanceToBall = calculateDistance(positionX, positionY, gameState.PictureBallX, gameState.PictureBallY);
+            double playerDistanceToBall = GamePlay.calculateDistance(positionX, positionY, gameState.PictureBallX, gameState.PictureBallY);
             int targetBallPositionX = gameState.PictureBallX + (Int32)(2 * kickForce * moveX / playerDistanceToBall);
             int targetBallPositionY = gameState.PictureBallY + (Int32)(2 * kickForce * moveY / playerDistanceToBall);
-            if (isBallMovingValid(targetBallPositionX, targetBallPositionY))
+
+            if (GamePlay.isBallMovingValid(targetBallPositionX, targetBallPositionY))
             {
                 int i = 0;
                 new Thread(delegate ()
@@ -78,7 +79,7 @@ namespace GameServer
                         targetBallPositionX = gameState.PictureBallX + (Int32)(2 * kickForce * moveX / playerDistanceToBall) / 10;
                         targetBallPositionY = gameState.PictureBallY + (Int32)(2 * kickForce * moveY / playerDistanceToBall) / 10;
 
-                        if (!isBallMovingValid(gameState.PictureBallX, gameState.PictureBallY))
+                        if (!GamePlay.isBallMovingValid(gameState.PictureBallX, gameState.PictureBallY))
                         {
                             return;
                         }
@@ -95,19 +96,6 @@ namespace GameServer
             }
         }
 
-        private bool isBallMovingValid(int positionX, int positionY)
-        {
-            if (positionX > 747)
-                return false;
-            if (positionX < 53)
-                return false;
-            if (positionY < 45)
-                return false;
-            if (positionY > 485)
-                return false;
-            return true;
-        }
-
         private bool isBallCloseToGoal()
         {
             GameState gameState = SingletonGameState.GetInstance().GetGameState();
@@ -117,13 +105,7 @@ namespace GameServer
             return false;
         }
 
-        private double calculateDistance(double firstX, double firstY, double secondX, double secondY)
-        {
-            double moveX = firstX - secondX;
-            double moveY = firstY - secondY;
-            double distance = Math.Sqrt(Math.Pow(moveX, 2) + Math.Pow(moveY, 2));
-            return distance;
-        }
+
 
         public void updatePositionInGameState()
         {
