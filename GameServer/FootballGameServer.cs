@@ -21,6 +21,8 @@ public class FootballGameServer
 	private Thread sendStateThread;
 	private TcpClient connectedTcpClient;
 	private GameState gameState = SingletonGameState.GetInstance().GetGameState();
+	private GoalKeeper homeGoalKeeper = new GoalKeeper(1, 70, 249, 128, 409, 160, 47);
+	private GoalKeeper awayGoalKeeper = new GoalKeeper(2, 708, 249, 128, 409, 767 , 654);
 
 	private int connectedClient = 0;
 
@@ -106,10 +108,19 @@ public class FootballGameServer
 				}
 				else{
 
+<<<<<<< HEAD
 					command = JsonConvert.DeserializeObject<UserCommand>(clientMessage);
 					Console.WriteLine("Act Klient: " + actClient);
 
+=======
+					UserCommand command = JsonConvert.DeserializeObject<UserCommand>(clientMessage);
+					Console.WriteLine("Client: " + actClient);
+>>>>>>> 4979801c6c492dc48a6e6f6357af057f93276065
 					command.doCommand();
+					homeGoalKeeper.moveGoalKeeper();
+					homeGoalKeeper.updatePositionInGameState();
+					awayGoalKeeper.moveGoalKeeper();
+					awayGoalKeeper.updatePositionInGameState();
 				}
 
 				Thread.Sleep(25);
