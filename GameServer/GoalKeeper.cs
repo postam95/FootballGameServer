@@ -16,6 +16,7 @@ namespace GameServer
 
         public GoalKeeper(int id, int positionX, int positionY, int northBorder, int southBorder, int eastBorder, int westBorder)
         {
+            this.id = id;
             this.positionX = positionX;
             this.positionY = positionY;
             this.northBorder = northBorder;
@@ -40,9 +41,37 @@ namespace GameServer
                 }
                 else
                 {
-
+                    doKicking(40);
                 }
             }
+        }
+
+        private void doKicking(int kickForce)
+        {
+            GameState gameState = SingletonGameState.GetInstance().GetGameState();
+            double moveX = gameState.PictureBallX - positionX;
+            double moveY = gameState.PictureBallY - positionY;
+            double playerDistanceToBall = calculateDistance(positionX, positionY, gameState.PictureBallX, gameState.PictureBallY);
+            int targetBallPositionX = gameState.PictureBallX + (Int32)(2 * kickForce * moveX / playerDistanceToBall);
+            int targetBallPositionY = gameState.PictureBallY + (Int32)(2 * kickForce * moveY / playerDistanceToBall);
+            if (isBallMovingValid(targetBallPositionX, targetBallPositionY))
+            {
+                gameState.PictureBallX = targetBallPositionX;
+                gameState.PictureBallY = targetBallPositionY;
+            }
+        }
+
+        private bool isBallMovingValid(int positionX, int positionY)
+        {
+            if (positionX > 765)
+                return false;
+            if (positionX < 35)
+                return false;
+            if (positionY < 27)
+                return false;
+            if (positionY > 503)
+                return false;
+            return true;
         }
 
         private bool isBallCloseToGoal()
@@ -65,7 +94,7 @@ namespace GameServer
         public void updatePositionInGameState()
         {
             GameState gameState = SingletonGameState.GetInstance().GetGameState();
-            if (id == 1)
+            if (this.id == 1)
             {
                 gameState.PcictureHomeGoalKeeperX = positionX;
                 gameState.PcictureHomeGoalKeeperY = positionY;

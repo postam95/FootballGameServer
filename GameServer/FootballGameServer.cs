@@ -21,8 +21,8 @@ public class FootballGameServer
 	private Thread sendStateThread;
 	private TcpClient connectedTcpClient;
 	private GameState gameState = SingletonGameState.GetInstance().GetGameState();
-	private GoalKeeper homeGoalKeeper = new GoalKeeper(1, 70, 249, 128, 374, 125, 47);
-	private GoalKeeper awayGoalKeeper = new GoalKeeper(2, 708, 249, 128, 374, 732 , 654);
+	private GoalKeeper homeGoalKeeper = new GoalKeeper(1, 70, 249, 128, 409, 160, 47);
+	private GoalKeeper awayGoalKeeper = new GoalKeeper(2, 708, 249, 128, 409, 767 , 654);
 
 	private int connectedClient = 0;
 
