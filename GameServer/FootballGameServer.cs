@@ -31,7 +31,7 @@ public class FootballGameServer
 		tcpListenerThread.Start();
 
 		sendStateThread = new Thread(new ThreadStart(sendGameState));
-		//sendStateThread.Start();
+		//ndStateThread.Start();
 	}
 
 	private void sendGameState()
@@ -48,7 +48,7 @@ public class FootballGameServer
 				SendMessage(ListConnectedClients[1], JsonConvert.SerializeObject(gameState));
 			}
 
-			Thread.Sleep(20);
+			//Thread.Sleep(20);
 		}
 
     }
@@ -64,6 +64,7 @@ public class FootballGameServer
 		while (tcpListener != null)
 		{
 			connectedTcpClient = tcpListener.AcceptTcpClient();
+	
 			ListConnectedClients.Add(connectedTcpClient);
 			ThreadPool.QueueUserWorkItem(this.HandleClientWorker, connectedTcpClient);
 		}
@@ -72,7 +73,9 @@ public class FootballGameServer
 	private void HandleClientWorker(object token)
 	{
 		int actClient;
+
 		Byte[] bytes = new Byte[1024];
+		UserCommand command = null;
 		using (var client = token as TcpClient)
 		using (var stream = client.GetStream())
 		{
@@ -81,6 +84,8 @@ public class FootballGameServer
 			int length;                   
 			while ((length = stream.Read(bytes, 0, bytes.Length)) != 0)
 			{
+				stream.WriteTimeout = 500;
+
 				var incommingData = new byte[length];
 				Array.Copy(bytes, 0, incommingData, 0, length);                    
 				string clientMessage = Encoding.ASCII.GetString(incommingData);
@@ -97,24 +102,18 @@ public class FootballGameServer
                     {
 						gameState.GameActualState = 2;
 						gameState.Player2Name = clientMessage.Substring(5);
-					}
-                }else{
+					}	
+				}
+				else{
 
-					UserCommand command = JsonConvert.DeserializeObject<UserCommand>(clientMessage);
+					command = JsonConvert.DeserializeObject<UserCommand>(clientMessage);
 					Console.WriteLine("Act Klient: " + actClient);
 
 					command.doCommand();
 				}
 
-				if (gameState.GameActualState == 1)
-				{
-					SendMessage(ListConnectedClients[0], JsonConvert.SerializeObject(gameState));
-				}
-				if (gameState.GameActualState == 2)
-				{
-					SendMessage(ListConnectedClients[0], JsonConvert.SerializeObject(gameState));
-					SendMessage(ListConnectedClients[1], JsonConvert.SerializeObject(gameState));
-				}
+				Thread.Sleep(25);
+				SendMessage(token, JsonConvert.SerializeObject(gameState));
 
 			}
 			if (connectedTcpClient == null)
@@ -125,6 +124,7 @@ public class FootballGameServer
 	}
 	public void SendMessage(object token, string msg)
 	{
+		
 		if (connectedTcpClient == null)
 		{
 			return;
@@ -135,10 +135,12 @@ public class FootballGameServer
 			{
 				NetworkStream stream = client.GetStream();
 				if (stream.CanWrite)
-				{          
+				{
+					stream.WriteTimeout = 500;
 					byte[] serverMessageAsByteArray = Encoding.ASCII.GetBytes(msg);           
 					stream.Write(serverMessageAsByteArray, 0, serverMessageAsByteArray.Length);
 					Console.WriteLine("Szerver üzenet küldés: " + serverMessageAsByteArray);
+					stream.Flush();
 				}
 			}
 			catch (SocketException socketException)

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 
 namespace GameServer
 {
@@ -111,8 +112,27 @@ namespace GameServer
                 int targetBallPositionY = gameState.PictureBallY + (Int32)(2 * kickForce * moveY / playerDistanceToBall);
                 if (isBallMovingValid(targetBallPositionX, targetBallPositionY))
                 {
-                    gameState.PictureBallX = targetBallPositionX;
-                    gameState.PictureBallY = targetBallPositionY;
+                    if (kickForce == 1)
+                    {
+                        gameState.PictureBallX = targetBallPositionX;
+                        gameState.PictureBallY = targetBallPositionY;
+                    }
+                    else
+                    {
+                        int i = 0;
+                        new Thread(delegate ()
+                        {
+                            while (true)
+                            {
+                                gameState.PictureBallX += (Int32)(2 * kickForce * moveX / playerDistanceToBall) / 10;
+                                gameState.PictureBallY += (Int32)(2 * kickForce * moveY / playerDistanceToBall) / 10;
+                                if (i == 10)
+                                    return;
+                                i++;
+                                Thread.Sleep(50);
+                            }
+                        }).Start();
+                    }
                 }
             }
             else
@@ -125,8 +145,27 @@ namespace GameServer
                 int targetBallPositionY = gameState.PictureBallY + (Int32)(2 * kickForce * moveY / playerDistanceToBall);
                 if (isBallMovingValid(targetBallPositionX, targetBallPositionY))
                 {
-                    gameState.PictureBallX = targetBallPositionX;
-                    gameState.PictureBallY = targetBallPositionY;
+                    if (kickForce == 1)
+                    {
+                        gameState.PictureBallX = targetBallPositionX;
+                        gameState.PictureBallY = targetBallPositionY;
+                    }
+                    else
+                    {
+                        int i = 0;
+                        new Thread(delegate ()
+                        {
+                            while (true)
+                            {
+                                gameState.PictureBallX += (Int32)(2 * kickForce * moveX / playerDistanceToBall) / 10;
+                                gameState.PictureBallY += (Int32)(2 * kickForce * moveY / playerDistanceToBall) / 10;
+                                if (i == 10)
+                                    return;
+                                i++;
+                                Thread.Sleep(50);
+                            }
+                        }).Start();
+                    }
                 }
             }
         }
