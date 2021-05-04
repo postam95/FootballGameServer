@@ -81,7 +81,7 @@ public class FootballGameServer
 		using (var client = token as TcpClient)
 		using (var stream = client.GetStream())
 		{
-			Console.WriteLine("Kliens csatlakozott");			
+			Console.WriteLine("Client connected successfully!");			
 			actClient = ++connectedClient;
 			int length;                   
 			while ((length = stream.Read(bytes, 0, bytes.Length)) != 0)
