@@ -32,7 +32,6 @@ public class FootballGameServer
 		tcpListenerThread.Start();
 
 		sendStateThread = new Thread(new ThreadStart(sendGameState));
-		//ndStateThread.Start();
 	}
 
 	private void sendGameState()

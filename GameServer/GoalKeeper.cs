@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 
 namespace GameServer
 {
@@ -28,7 +29,7 @@ namespace GameServer
         public void moveGoalKeeper()
         {
             // Ha a labda a 16-oson belül van, akkor a kapus elindul az irányába, hogy elrúgja azt.
-             if (isBallCloseToGoal())
+            if (isBallCloseToGoal())
             {
                 GameState gameState = SingletonGameState.GetInstance().GetGameState();
                 double moveX = gameState.PictureBallX - positionX;
@@ -44,6 +45,19 @@ namespace GameServer
                     doKicking(40);
                 }
             }
+            else
+            {
+                if (this.id == 1)
+                {
+                    positionX = 70;
+                    positionY = 249;
+                }
+                else
+                {
+                    positionX = 708;
+                    positionY = 249;
+                }
+            }
         }
 
         private void doKicking(int kickForce)
@@ -56,20 +70,40 @@ namespace GameServer
             int targetBallPositionY = gameState.PictureBallY + (Int32)(2 * kickForce * moveY / playerDistanceToBall);
             if (isBallMovingValid(targetBallPositionX, targetBallPositionY))
             {
-                gameState.PictureBallX = targetBallPositionX;
-                gameState.PictureBallY = targetBallPositionY;
+                int i = 0;
+                new Thread(delegate ()
+                {
+                    while (true)
+                    {
+                        targetBallPositionX = gameState.PictureBallX + (Int32)(2 * kickForce * moveX / playerDistanceToBall) / 10;
+                        targetBallPositionY = gameState.PictureBallY + (Int32)(2 * kickForce * moveY / playerDistanceToBall) / 10;
+
+                        if (!isBallMovingValid(gameState.PictureBallX, gameState.PictureBallY))
+                        {
+                            return;
+                        }
+
+                        gameState.PictureBallX = targetBallPositionX;
+                        gameState.PictureBallY = targetBallPositionY;
+
+                        if (i == 10)
+                            return;
+                        i++;
+                        Thread.Sleep(50);
+                    }
+                }).Start();
             }
         }
 
         private bool isBallMovingValid(int positionX, int positionY)
         {
-            if (positionX > 765)
+            if (positionX > 747)
                 return false;
-            if (positionX < 35)
+            if (positionX < 53)
                 return false;
-            if (positionY < 27)
+            if (positionY < 45)
                 return false;
-            if (positionY > 503)
+            if (positionY > 485)
                 return false;
             return true;
         }

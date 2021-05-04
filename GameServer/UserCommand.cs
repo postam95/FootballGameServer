@@ -110,64 +110,62 @@ namespace GameServer
                                                          gameState.PictureBallX, gameState.PictureBallY);
                 int targetBallPositionX = gameState.PictureBallX + (Int32)(2 * kickForce * moveX / playerDistanceToBall);
                 int targetBallPositionY = gameState.PictureBallY + (Int32)(2 * kickForce * moveY / playerDistanceToBall);
-            
-        
-                
-                    if (kickForce == 1)
-                    {
-                        if (isHomeGoal(targetBallPositionX, targetBallPositionY))
-                        {
-                            scoreHandler(1);
-                            return;
-                        }
-                        if (isAwayGoal(targetBallPositionX, targetBallPositionY))
-                        {
-                            scoreHandler(2);
-                            return;
-                        }
-                        if (!isBallMovingValid(gameState.PictureBallX, gameState.PictureBallY))
-                        {
-                            return;
-                        }
 
-                        gameState.PictureBallX = targetBallPositionX;
-                        gameState.PictureBallY = targetBallPositionY;
-                    }
-                    else
+                if (kickForce == 1)
+                {
+                    if (isHomeGoal(targetBallPositionX, targetBallPositionY))
                     {
-                        int i = 0;
-                        new Thread(delegate ()
+                        scoreHandler(1);
+                        return;
+                    }
+                    if (isAwayGoal(targetBallPositionX, targetBallPositionY))
+                    {
+                        scoreHandler(2);
+                        return;
+                    }
+                    if (!isBallMovingValid(gameState.PictureBallX, gameState.PictureBallY))
+                    {
+                        return;
+                    }
+
+                    gameState.PictureBallX = targetBallPositionX;
+                    gameState.PictureBallY = targetBallPositionY;
+                }
+                else
+                {
+                    int i = 0;
+                    new Thread(delegate ()
+                    {
+                        while (true)
                         {
-                            while (true)
+                            targetBallPositionX = gameState.PictureBallX + (Int32)(2 * kickForce * moveX / playerDistanceToBall) / 10;
+                            targetBallPositionY = gameState.PictureBallY + (Int32)(2 * kickForce * moveY / playerDistanceToBall) / 10;
+
+                            if (isHomeGoal(targetBallPositionX, targetBallPositionY))
                             {
-                                targetBallPositionX = gameState.PictureBallX + (Int32)(2 * kickForce * moveX / playerDistanceToBall) / 10;
-                                targetBallPositionY = gameState.PictureBallY + (Int32)(2 * kickForce * moveY / playerDistanceToBall) / 10;
-
-                                if (isHomeGoal(targetBallPositionX, targetBallPositionY))
-                                {
-                                    scoreHandler(1);
-                                    return;
-                                }
-                                if (isAwayGoal(targetBallPositionX, targetBallPositionY))
-                                {
-                                    scoreHandler(2);
-                                    return;
-                                }
-                                if (!isBallMovingValid(gameState.PictureBallX, gameState.PictureBallY))
-                                {
-                                    return;
-                                }
-
-                                gameState.PictureBallX = targetBallPositionX;
-                                gameState.PictureBallY = targetBallPositionY;
-
-                                if (i == 10)
-                                    return;
-                                i++;
-                                Thread.Sleep(50);
+                                scoreHandler(1);
+                                return;
                             }
-                        }).Start();
-                    }
+                            if (isAwayGoal(targetBallPositionX, targetBallPositionY))
+                            {
+                                scoreHandler(2);
+                                return;
+                            }
+                            if (!isBallMovingValid(gameState.PictureBallX, gameState.PictureBallY))
+                            {
+                                return;
+                            }
+
+                            gameState.PictureBallX = targetBallPositionX;
+                            gameState.PictureBallY = targetBallPositionY;
+
+                            if (i == 9)
+                                return;
+                            i++;
+                            Thread.Sleep(50);
+                        }
+                    }).Start();
+                }
                 
             }
             else
@@ -231,7 +229,7 @@ namespace GameServer
                             gameState.PictureBallX = targetBallPositionX;
                             gameState.PictureBallY = targetBallPositionY;
 
-                            if (i == 10)
+                            if (i == 9)
                                 return;
                             i++;
                             Thread.Sleep(50);
@@ -241,30 +239,29 @@ namespace GameServer
                 
             }
         }
-
         private bool isBallMovingValid(int positionX, int positionY)
         {
-            if (positionX > 752)
+            if (positionX > 747)
                 return false;
-            if (positionX < 48)
+            if (positionX < 53)
                 return false;
-            if (positionY < 40)
+            if (positionY < 45)
                 return false;
-            if (positionY > 490)
+            if (positionY > 485)
                 return false;
             return true;
         }
 
         private bool isHomeGoal(int ballPositionX, int ballPositionY)
         {
-            if (ballPositionX < 35 && ballPositionY > 206 && ballPositionY < 329)
+            if (ballPositionX < 48 && ballPositionY > 206 && ballPositionY < 329)
                 return true;
             return false;
         }
 
         private bool isAwayGoal(int ballPositionX, int ballPositionY)
         {
-            if (ballPositionX > 765 && ballPositionY > 206 && ballPositionY < 329)
+            if (ballPositionX > 752 && ballPositionY > 206 && ballPositionY < 329)
                 return true;
             return false;
         }
