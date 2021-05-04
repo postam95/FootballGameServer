@@ -108,14 +108,9 @@ public class FootballGameServer
 				}
 				else{
 
-<<<<<<< HEAD
 					command = JsonConvert.DeserializeObject<UserCommand>(clientMessage);
-					Console.WriteLine("Act Klient: " + actClient);
-
-=======
-					UserCommand command = JsonConvert.DeserializeObject<UserCommand>(clientMessage);
 					Console.WriteLine("Client: " + actClient);
->>>>>>> 4979801c6c492dc48a6e6f6357af057f93276065
+
 					command.doCommand();
 					homeGoalKeeper.moveGoalKeeper();
 					homeGoalKeeper.updatePositionInGameState();
